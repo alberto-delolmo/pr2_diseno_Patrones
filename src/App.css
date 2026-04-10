@@ -10,7 +10,7 @@ body {
   border-radius: 20px;
   width: 350px;
   margin: 60px auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 
   display: flex;
   flex-direction: column;
@@ -49,31 +49,40 @@ input:focus {
   box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
 }
 
-.options {
+/* CONTENEDOR DE CADA CAMPO */
+.option {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: flex-start;
   width: 100%;
 }
 
-.option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.option span {
+/* LABEL */
+.option label {
   font-size: 14px;
   color: #555;
+  margin-bottom: 4px;
 }
 
+/* INPUT */
 .option input {
-  width: 70px;
+  width: 100%;
   padding: 8px;
   border-radius: 10px;
   border: 1px solid #ddd;
-  text-align: center;
-  transition: 0.2s;
+}
+
+/* ERROR TEXTO */
+.error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* INPUT ERROR */
+.input-error {
+  border: 1px solid #e74c3c;
+  background: #fff5f5;
 }
 
 button {
@@ -116,6 +125,19 @@ button:hover {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
 }

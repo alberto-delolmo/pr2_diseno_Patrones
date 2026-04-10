@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// IMPORTS BACKEND
 import { createOrder } from "../../backend/models/Order";
 import { discountOrder } from "../../backend/decorators/DiscountOrder";
 import { taxOrder } from "../../backend/decorators/TaxOrder";
@@ -12,12 +11,20 @@ import { consoleObserver } from "../../backend/observers/ConsoleObserver";
 import { textFileObserver } from "../../backend/observers/TextFileObserver";
 
 import OrderSummary from "./OrderSummary";
-import { notificationObserver} from "../../backend/observers/NotificationObserver";
+import { notificationObserver } from "../../backend/observers/NotificationObserver";
 
-// IMPORTS BACKEND (igual que antes)
 
 export default function OrderForm() {
   const [baseAmount, setBaseAmount] = useState<number | string>("");
+
+  const [errors, setErrors] = useState({
+    baseAmount: "",
+    discount: "",
+    tax: "",
+    shipping: "",
+    surcharge: "",
+    email: ""
+  });
 
   const [discount, setDiscount] = useState<number | string>("");
   const [tax, setTax] = useState<number | string>("");
@@ -35,22 +42,74 @@ export default function OrderForm() {
 
   const handleConfirm = () => {
 
+    const newErrors = {
+      baseAmount: "",
+      discount: "",
+      tax: "",
+      shipping: "",
+      surcharge: "",
+      email: ""
+    };
+
+    let hasError = false;
+
     if (baseAmount === "" || isNaN(Number(baseAmount))) {
-      showPopup("Introduce un precio válido");
-      return;
+      newErrors.baseAmount = "Precio inválido";
+      hasError = true;
     }
 
     if (email !== "" && !isValidEmail(email)) {
-      showPopup("Email inválido");
-      return;
+      newErrors.email = "Email inválido";
+      hasError = true;
     }
+
+    if (discount !== "") {
+      const d = Number(discount);
+      if (d < 0 || d > 100) {
+        newErrors.discount = "Entre 0 y 100";
+        hasError = true;
+      }
+    }
+
+    if (tax !== "") {
+      const t = Number(tax);
+      if (t < 0 || t > 100) {
+        newErrors.tax = "Entre 0 y 100";
+        hasError = true;
+      }
+    }
+
+    if (shipping !== "") {
+      const s = Number(shipping);
+      if (s < 0) {
+        newErrors.shipping = "Debe ser ≥ 0";
+        hasError = true;
+      }
+    }
+
+    // SURCHARGE
+    if (surcharge !== "") {
+      const r = Number(surcharge);
+      if (r < 0) {
+        newErrors.surcharge = "Debe ser ≥ 0";
+        hasError = true;
+      }
+    }
+
+    // SET ERRORS
+    setErrors(newErrors);
+
+    // SI HAY ERROR → NO CONTINÚA
+    if (hasError) return;
 
     let order = createOrder(Number(baseAmount));
 
-    if (discount != "") order = discountOrder(order,discount as number);
+    if (discount != "") order = discountOrder(order, discount as number);
     if (tax != "") order = taxOrder(order, tax as number);
     if (shipping != "") order = sendOrder(order, shipping as number);
     if (surcharge != "") order = surchargeOrder(order, surcharge as number);
+
+
 
     if (email !== "") {
       order = { ...order, email };
@@ -107,13 +166,15 @@ export default function OrderForm() {
             }
           }}
         />
+        {errors.baseAmount && <p className="error">{errors.baseAmount}</p>}
 
         <div className="options">
 
-          <label className="option">
+          <div className="option">
             <span>Descuento (%)</span>
             <input
-              type="text"
+              className={errors.discount ? "input-error" : ""}
+              type="number"
               value={discount}
               onChange={(e) => {
                 const value = e.target.value;
@@ -122,12 +183,14 @@ export default function OrderForm() {
                 }
               }}
             />
-          </label>
+            {errors.discount && <span className="error">{errors.discount}</span>}
+          </div>
 
-          <label className="option">
+          <div className="option">
             <span>Impuesto (%)</span>
             <input
-              type="text"
+              className={errors.tax ? "input-error" : ""}
+              type="number"
               value={tax}
               onChange={(e) => {
                 const value = e.target.value;
@@ -136,12 +199,14 @@ export default function OrderForm() {
                 }
               }}
             />
-          </label>
+            {errors.tax && <span className="error">{errors.tax}</span>}
+          </div>
 
           <label className="option">
             <span>Envío (€)</span>
             <input
-              type="text"
+              className={errors.shipping ? "input-error" : ""}
+              type="number"
               value={shipping}
               onChange={(e) => {
                 const value = e.target.value;
@@ -150,12 +215,14 @@ export default function OrderForm() {
                 }
               }}
             />
+            {errors.shipping && <span className="error">{errors.shipping}</span>}
           </label>
 
-          <label className="option">
+          <div className="option">
             <span>Recargo (€)</span>
             <input
-              type="text"
+              className={errors.surcharge ? "input-error" : ""}
+              type="number"
               value={surcharge}
               onChange={(e) => {
                 const value = e.target.value;
@@ -164,7 +231,8 @@ export default function OrderForm() {
                 }
               }}
             />
-          </label>
+            {errors.surcharge && <span className="error">{errors.surcharge}</span>}
+          </div>
 
         </div>
 
@@ -176,6 +244,7 @@ export default function OrderForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {errors.email && <p className="error">{errors.email}</p>}
         </div>
 
         <button onClick={handleConfirm}>Confirmar Pedido</button>
