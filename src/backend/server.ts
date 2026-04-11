@@ -9,12 +9,12 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/order", (req, res) => {
-  const { price, email } = req.body;
+  const { email, descripcion } = req.body;
 
   const now = new Date();
-  const emailText = email ? ` - Email: ${email}` : "";
+  const emailText = email ? ` Email: ${email}` : "Anónimo";
 
-  const line = `${now.toLocaleString()} - Pedido de ${price}€${emailText}\n`;
+  const line = `${now.toLocaleString()} - ${emailText}:\nPedido: ${descripcion}`;
 
   const filePath = path.join(process.cwd(), "orders.txt");
   fs.appendFileSync(filePath, line);

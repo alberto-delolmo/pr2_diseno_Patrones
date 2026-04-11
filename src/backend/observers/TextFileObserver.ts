@@ -8,8 +8,8 @@ export const textFileObserver = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        price: order.getPrice(),
         email: order.email || "",
+        descripcion: order.descripcion,
       }),
     });
   },

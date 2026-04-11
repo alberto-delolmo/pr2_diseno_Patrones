@@ -5,6 +5,7 @@ export const discountOrder = (order: Order, discount: number): Order => {
 
     return {
         ...order,
-        getPrice: () => order.getPrice() * (1 + discount / 100),
+        descripcion: order.descripcion + `Descuento: ${discount}%\n`,
+        getPrice: () => order.getPrice() * (1 - discount / 100),
     };
 };

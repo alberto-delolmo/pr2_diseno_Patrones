@@ -9,13 +9,21 @@ import { surchargeOrder } from "../../backend/decorators/SurchargeOrder";
 import { createOrderService } from "../../backend/OrderService";
 import { consoleObserver } from "../../backend/observers/ConsoleObserver";
 import { textFileObserver } from "../../backend/observers/TextFileObserver";
-
-import OrderSummary from "./OrderSummary";
 import { notificationObserver } from "../../backend/observers/NotificationObserver";
 
+import OrderSummary from "./OrderSummary";
 
 export default function OrderForm() {
   const [baseAmount, setBaseAmount] = useState<number | string>("");
+
+  const [discount, setDiscount] = useState<number | string>("");
+  const [tax, setTax] = useState<number | string>("");
+  const [shipping, setShipping] = useState<number | string>("");
+  const [surcharge, setSurcharge] = useState<number | string>("");
+
+  const [email, setEmail] = useState("");
+  const [popup, setPopup] = useState("");
+  const [result, setResult] = useState("");
 
   const [errors, setErrors] = useState({
     baseAmount: "",
@@ -26,22 +34,11 @@ export default function OrderForm() {
     email: ""
   });
 
-  const [discount, setDiscount] = useState<number | string>("");
-  const [tax, setTax] = useState<number | string>("");
-  const [shipping, setShipping] = useState<number | string>("");
-  const [surcharge, setSurcharge] = useState<number | string>("");
-
-  const [email, setEmail] = useState("");
-  const [popup, setPopup] = useState("");
-
-  const [result, setResult] = useState("");
-
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleConfirm = () => {
-
     const newErrors = {
       baseAmount: "",
       discount: "",
@@ -87,7 +84,6 @@ export default function OrderForm() {
       }
     }
 
-    // SURCHARGE
     if (surcharge !== "") {
       const r = Number(surcharge);
       if (r < 0) {
@@ -96,51 +92,48 @@ export default function OrderForm() {
       }
     }
 
-    // SET ERRORS
     setErrors(newErrors);
-
-    // SI HAY ERROR → NO CONTINÚA
     if (hasError) return;
 
     let order = createOrder(Number(baseAmount));
 
-    if (discount != "") order = discountOrder(order, discount as number);
-    if (tax != "") order = taxOrder(order, tax as number);
-    if (shipping != "") order = sendOrder(order, shipping as number);
-    if (surcharge != "") order = surchargeOrder(order, surcharge as number);
-
-
+    if (discount !== "") order = discountOrder(order, discount as number);
+    if (tax !== "") order = taxOrder(order, tax as number);
+    if (shipping !== "") order = sendOrder(order, shipping as number);
+    if (surcharge !== "") order = surchargeOrder(order, surcharge as number);
 
     if (email !== "") {
       order = { ...order, email };
     }
 
     const service = createOrderService();
-
     service.addObserver(consoleObserver);
 
     if (email !== "") {
       service.addObserver(notificationObserver(email, showPopup));
     }
+
+
+    order.descripcion = order.descripcion + `-----------------------------------------
+      Total: ${order.getPrice().toFixed(2)}€\n\n`
+
     service.addObserver(textFileObserver);
     service.confirmOrder(order);
 
-    setResult(`Total: ${order.getPrice().toFixed(2)}€`);
+    setResult(`${order.descripcion}`);
 
-    setEmail("");
+    // Reset
     setBaseAmount("");
     setDiscount("");
     setTax("");
     setShipping("");
     setSurcharge("");
+    setEmail("");
   };
 
   const showPopup = (message: string) => {
     setPopup(message);
-
-    setTimeout(() => {
-      setPopup("");
-    }, 10000);
+    setTimeout(() => setPopup(""), 4000);
   };
 
   return (
@@ -149,114 +142,115 @@ export default function OrderForm() {
         <h1>
           Sistema de <span>Pedidos</span>
         </h1>
-
         <h3>Crear Pedido</h3>
 
-        <input
-          type="text"
-          placeholder="Precio base"
-          className="input-price"
-          value={baseAmount}
-          onChange={(e) => {
-            const value = e.target.value;
+        {/* PRECIO BASE */}
+        <div className="field">
+          <input
+            type="text"
+            placeholder="Precio base (€)"
+            className={errors.baseAmount ? "input-error" : ""}
+            value={baseAmount}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                setBaseAmount(value === "" ? "" : Number(value));
+              }
+            }}
+          />
+        </div>
 
-            // solo números o vacío
-            if (/^\d*$/.test(value)) {
-              setBaseAmount(value === "" ? "" : Number(value));
-            }
-          }}
-        />
-        {errors.baseAmount && <p className="error">{errors.baseAmount}</p>}
+        <hr />
 
+        {/* OPCIONES */}
         <div className="options">
 
-          <div className="option">
-            <span>Descuento (%)</span>
-            <input
-              className={errors.discount ? "input-error" : ""}
-              type="number"
-              value={discount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d*$/.test(value)) {
-                  setDiscount(value === "" ? "" : Number(value));
+          <div className="field">
+            <div className="row">
+              <span>Descuento (%)</span>
+              <input
+                className={errors.discount ? "input-error" : ""}
+                type="number"
+                value={discount}
+                onChange={(e) =>
+                  setDiscount(e.target.value === "" ? "" : Number(e.target.value))
                 }
-              }}
-            />
+              />
+            </div>
             {errors.discount && <span className="error">{errors.discount}</span>}
           </div>
 
-          <div className="option">
-            <span>Impuesto (%)</span>
-            <input
-              className={errors.tax ? "input-error" : ""}
-              type="number"
-              value={tax}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d*$/.test(value)) {
-                  setTax(value === "" ? "" : Number(value));
+          <div className="field">
+            <div className="row">
+              <span>Impuesto (%)</span>
+              <input
+                className={errors.tax ? "input-error" : ""}
+                type="number"
+                value={tax}
+                onChange={(e) =>
+                  setTax(e.target.value === "" ? "" : Number(e.target.value))
                 }
-              }}
-            />
+              />
+            </div>
             {errors.tax && <span className="error">{errors.tax}</span>}
           </div>
 
-          <label className="option">
-            <span>Envío (€)</span>
-            <input
-              className={errors.shipping ? "input-error" : ""}
-              type="number"
-              value={shipping}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d*$/.test(value)) {
-                  setShipping(value === "" ? "" : Number(value));
+          <div className="field">
+            <div className="row">
+              <span>Envío (€)</span>
+              <input
+                className={errors.shipping ? "input-error" : ""}
+                type="number"
+                value={shipping}
+                onChange={(e) =>
+                  setShipping(e.target.value === "" ? "" : Number(e.target.value))
                 }
-              }}
-            />
+              />
+            </div>
             {errors.shipping && <span className="error">{errors.shipping}</span>}
-          </label>
+          </div>
 
-          <div className="option">
-            <span>Recargo (€)</span>
-            <input
-              className={errors.surcharge ? "input-error" : ""}
-              type="number"
-              value={surcharge}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d*$/.test(value)) {
-                  setSurcharge(value === "" ? "" : Number(value));
+          <div className="field">
+            <div className="row">
+              <span>Recargo (€)</span>
+              <input
+                className={errors.surcharge ? "input-error" : ""}
+                type="number"
+                value={surcharge}
+                onChange={(e) =>
+                  setSurcharge(e.target.value === "" ? "" : Number(e.target.value))
                 }
-              }}
-            />
-            {errors.surcharge && <span className="error">{errors.surcharge}</span>}
+              />
+            </div>
+            {errors.surcharge && (
+              <span className="error">{errors.surcharge}</span>
+            )}
           </div>
 
         </div>
 
-        <div>
+        {/* EMAIL */}
+        <div className="field">
           <input
             type="email"
             placeholder="Correo del cliente (opcional)"
-            className="input-email"
+            className={errors.email ? "input-error" : ""}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {errors.email && <p className="error">{errors.email}</p>}
         </div>
 
-        <button onClick={handleConfirm}>Confirmar Pedido</button>
+        {/* BOTON */}
+        <button onClick={handleConfirm}>
+          Confirmar Pedido
+        </button>
 
+        {/* RESULTADO */}
         <OrderSummary result={result} />
       </div>
 
-      {popup && (
-        <div className="popup">
-          {popup}
-        </div>
-      )}
+      {/* POPUP */}
+      {popup && <div className="popup">{popup}</div>}
     </>
   );
 }

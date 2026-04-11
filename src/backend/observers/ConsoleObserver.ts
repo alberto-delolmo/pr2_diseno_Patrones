@@ -3,6 +3,8 @@ import type { Observer } from "./Observer";
 
 export const consoleObserver: Observer = {
   update: (order: Order) => {
-    console.log(`Pedido enviado a ${order.email} ➜ ${order.getPrice().toFixed(2)}€`)
+    const emailText = order.email ? ` - Email: ${order.email}` : "Anónimo";
+    const now = Date();
+    console.log(`${now.toLocaleString()} - ${emailText}\n${order.descripcion}`);
   }
 };
