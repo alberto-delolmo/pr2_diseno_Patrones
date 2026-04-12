@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 import { createOrder } from "../../backend/models/Order";
+
 import { discountOrder } from "../../backend/decorators/DiscountOrder";
 import { taxOrder } from "../../backend/decorators/TaxOrder";
-import { sendOrder } from "../../backend/decorators/SendOrder";
+import { shippingOrder } from "../../backend/decorators/ShippingOrder";
 import { surchargeOrder } from "../../backend/decorators/SurchargeOrder";
 
 import { createOrderService } from "../../backend/OrderService";
@@ -14,6 +15,7 @@ import { notificationObserver } from "../../backend/observers/NotificationObserv
 import OrderSummary from "./OrderSummary";
 
 export default function OrderForm() {
+
   const [baseAmount, setBaseAmount] = useState<number | string>("");
 
   const [discount, setDiscount] = useState<number | string>("");
@@ -99,7 +101,7 @@ export default function OrderForm() {
 
     if (discount !== "") order = discountOrder(order, discount as number);
     if (tax !== "") order = taxOrder(order, tax as number);
-    if (shipping !== "") order = sendOrder(order, shipping as number);
+    if (shipping !== "") order = shippingOrder(order, shipping as number);
     if (surcharge !== "") order = surchargeOrder(order, surcharge as number);
 
     if (email !== "") {
@@ -122,7 +124,6 @@ export default function OrderForm() {
 
     setResult(`${order.descripcion}`);
 
-    // Reset
     setBaseAmount("");
     setDiscount("");
     setTax("");
@@ -139,12 +140,10 @@ export default function OrderForm() {
   return (
     <>
       <div className="header">
-        <h1>
-          Sistema de <span>Pedidos</span>
-        </h1>
+        <h1>Sistema de Pedidos</h1>
+
         <h3>Crear Pedido</h3>
 
-        {/* PRECIO BASE */}
         <div className="field">
           <input
             type="text"
@@ -159,10 +158,10 @@ export default function OrderForm() {
             }}
           />
         </div>
+        {errors.baseAmount && <span className="error">{errors.baseAmount}</span>}
 
         <hr />
 
-        {/* OPCIONES */}
         <div className="options">
 
           <div className="field">
@@ -222,14 +221,11 @@ export default function OrderForm() {
                 }
               />
             </div>
-            {errors.surcharge && (
-              <span className="error">{errors.surcharge}</span>
-            )}
+            {errors.surcharge && (<span className="error">{errors.surcharge}</span>)}
           </div>
 
         </div>
 
-        {/* EMAIL */}
         <div className="field">
           <input
             type="email"
@@ -238,18 +234,16 @@ export default function OrderForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {errors.email && (<span className="error">{errors.email}</span>)}
         </div>
 
-        {/* BOTON */}
         <button onClick={handleConfirm}>
           Confirmar Pedido
         </button>
 
-        {/* RESULTADO */}
         <OrderSummary result={result} />
       </div>
 
-      {/* POPUP */}
       {popup && <div className="popup">{popup}</div>}
     </>
   );

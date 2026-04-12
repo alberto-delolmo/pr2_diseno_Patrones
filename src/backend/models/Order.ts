@@ -1,5 +1,3 @@
-
-
 export interface Order {
     id: number;
     basePrice: number;

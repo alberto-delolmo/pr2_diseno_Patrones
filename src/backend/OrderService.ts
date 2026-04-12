@@ -1,5 +1,4 @@
-// services/orderService.ts
-import type{ Observer } from "./observers/Observer";
+import type { Observer } from "./observers/Observer";
 import type { Order } from "./models/Order";
 
 export const createOrderService = () => {
@@ -9,7 +8,7 @@ export const createOrderService = () => {
     addObserver: (observer: Observer) => {
       observers.push(observer);
     },
-    
+
 
     confirmOrder: (order: Order) => {
       observers.forEach(o => o.update(order));

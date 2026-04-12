@@ -12,12 +12,12 @@ app.post("/order", (req, res) => {
   const { email, descripcion } = req.body;
 
   const now = new Date();
-  const emailText = email ? ` Email: ${email}` : "Anónimo";
+  const newEmail = email ? ` Email: ${email}` : "Anónimo";
 
-  const line = `${now.toLocaleString()} - ${emailText}:\nPedido: ${descripcion}`;
+  const message = `${now.toLocaleString()} - ${newEmail}:\nPedido: ${descripcion}`;
 
   const filePath = path.join(process.cwd(), "orders.txt");
-  fs.appendFileSync(filePath, line);
+  fs.appendFileSync(filePath, message);
 
   res.sendStatus(200);
 });
