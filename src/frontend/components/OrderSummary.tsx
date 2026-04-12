@@ -2,7 +2,7 @@ interface Props {
   result: string;
 }
 
-export default function OrderSummary({ result }: Props) {
+export function OrderSummary({ result }: Props) {
   if (!result) return null;
 
   return (

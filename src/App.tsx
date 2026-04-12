@@ -1,4 +1,4 @@
-import OrderForm from "./frontend/components/OrderForm";
+import { OrderForm } from "./frontend/components/OrderForm";
 import "./App.css";
 
 function App() {
