@@ -31,22 +31,22 @@ export function validateOrder({
     }
 
     if (discount !== "" && (d < 0 || d > 100)) {
-        errors.discount = "Entre 0 y 100";
+        errors.discount = "Debe estar entre  0 y 100";
         hasError = true;
     }
 
     if (tax !== "" && (t < 0 || t > 100)) {
-        errors.tax = "Entre 0 y 100";
+        errors.tax = "Debe estar entre 0 y 100";
         hasError = true;
     }
 
     if (shipping !== "" && s < 0) {
-        errors.shipping = "Debe ser ≥ 0";
+        errors.shipping = "Debe ser mayor o igual a 0";
         hasError = true;
     }
 
     if (surcharge !== "" && r < 0) {
-        errors.surcharge = "Debe ser ≥ 0";
+        errors.surcharge = "Debe ser mayor o igual a 0";
         hasError = true;
     }
 

@@ -16,7 +16,6 @@ export function Options({
 
             <OptionInput
                 label="Descuento (%)"
-                type="number"
                 value={discount}
                 onChange={(v) => setDiscount(v === "" ? "" : Number(v))}
                 error={errors.discount}
@@ -24,7 +23,6 @@ export function Options({
 
             <OptionInput
                 label="Impuesto (%)"
-                type="number"
                 value={tax}
                 onChange={(v) => setTax(v === "" ? "" : Number(v))}
                 error={errors.tax}
@@ -32,7 +30,6 @@ export function Options({
 
             <OptionInput
                 label="Envío (€)"
-                type="number"
                 value={shipping}
                 onChange={(v) => setShipping(v === "" ? "" : Number(v))}
                 error={errors.shipping}
@@ -40,7 +37,6 @@ export function Options({
 
             <OptionInput
                 label="Recargo (€)"
-                type="number"
                 value={surcharge}
                 onChange={(v) => setSurcharge(v === "" ? "" : Number(v))}
                 error={errors.surcharge}
